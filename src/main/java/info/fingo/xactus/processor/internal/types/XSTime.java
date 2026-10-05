@@ -399,10 +399,11 @@ Cloneable {
 			return null;
 		}
 
-		XMLGregorianCalendar xmlCal = _datatypeFactory.newXMLGregorianCalendar((GregorianCalendar)calendar());
+		Calendar source = calendar();
+		XMLGregorianCalendar xmlCal = _datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) source);
 		Duration dtduration = _datatypeFactory.newDuration(val.getStringValue());
 		xmlCal.add(dtduration.negate());
-		res = new XSTime(xmlCal.toGregorianCalendar(), res.tz());
+		res = new XSTime(toGregorianCalendar(source, xmlCal), res.tz());
 
 		return res;
 	}

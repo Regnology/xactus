@@ -15,6 +15,7 @@
 package info.fingo.xactus.processor.internal.function;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
@@ -115,12 +116,13 @@ public class FnAdjustDateTimeToTimeZone extends Function {
 			return new XSDateTime(dateTime.calendar(), timezone);
 		}
 
-		XMLGregorianCalendar xmlCalendar = _datatypeFactory.newXMLGregorianCalendar((GregorianCalendar)dateTime.normalizeCalendar(dateTime.calendar(), dateTime.tz()));
+		Calendar normalized = dateTime.normalizeCalendar(dateTime.calendar(), dateTime.tz());
+		XMLGregorianCalendar xmlCalendar = _datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) normalized);
 
 		Duration duration = _datatypeFactory.newDuration(timezone.getStringValue());
 		xmlCalendar.add(duration);
 
-		return new XSDateTime(xmlCalendar.toGregorianCalendar(), timezone);
+		return new XSDateTime(CalendarType.toGregorianCalendar(normalized, xmlCalendar), timezone);
 	}
 
 	/**

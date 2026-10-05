@@ -436,13 +436,13 @@ Cloneable {
 
 		try {
 			XSDate res = (XSDate) clone();
+			Calendar source = calendar();
 			XMLGregorianCalendar xmlCal = _datatypeFactory
-					.newXMLGregorianCalendar(
-							(GregorianCalendar) calendar());
+					.newXMLGregorianCalendar((GregorianCalendar) source);
 			Duration dtduration = _datatypeFactory
 					.newDuration(val.getStringValue());
 			xmlCal.add(dtduration.negate());
-			res = new XSDate(xmlCal.toGregorianCalendar(), res.tz());
+			res = new XSDate(toGregorianCalendar(source, xmlCal), res.tz());
 			return res;
 		} catch (CloneNotSupportedException ex) {
 		}

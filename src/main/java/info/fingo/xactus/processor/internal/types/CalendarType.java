@@ -18,6 +18,8 @@ package info.fingo.xactus.processor.internal.types;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 // common base for anything that uses a calendar... basically stuff doing with
 // time... hopefully in the future this may be factored out here
 /**
@@ -43,6 +45,32 @@ public abstract class CalendarType extends CtrType {
 
 		return adjusted;
 
+	}
+
+	/**
+	 * Converts an XML calendar produced from {@code source} back into a
+	 * Gregorian calendar that keeps the source timezone identity.
+	 * <p>
+	 * {@link XMLGregorianCalendar#toGregorianCalendar()} rewrites a zero offset
+	 * as the timezone id {@code GMT+00:00}. {@link Calendar#equals(Object)}
+	 * compares timezone ids, so that result is not equal to a calendar whose
+	 * timezone id is {@code UTC} even when both represent the same instant.
+	 * Parsed date values use {@code UTC}, so duration arithmetic and timezone
+	 * adjustment must preserve that id.
+	 *
+	 * @param source
+	 *            calendar originally supplied to
+	 *            {@code DatatypeFactory.newXMLGregorianCalendar}
+	 * @param xmlCalendar
+	 *            calendar after the duration or timezone adjustment
+	 * @return Gregorian calendar with the source timezone identity
+	 */
+	public static GregorianCalendar toGregorianCalendar(Calendar source, XMLGregorianCalendar xmlCalendar) {
+		GregorianCalendar result = xmlCalendar.toGregorianCalendar(source.getTimeZone(), null, null);
+		result.setLenient(source.isLenient());
+		result.setFirstDayOfWeek(source.getFirstDayOfWeek());
+		result.setMinimalDaysInFirstWeek(source.getMinimalDaysInFirstWeek());
+		return result;
 	}
 
 	protected boolean isGDataType(AnyType aat) {
