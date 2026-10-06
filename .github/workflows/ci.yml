@@ -129,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download XML test results artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: junit-xml-test-report
           path: junit-xml-test-report
@@ -149,7 +149,7 @@ jobs:
       test_report_url: ${{ steps.generate_report_url.outputs.test_report_url }}
     steps:
       - name: Download XML test results artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: junit-html-test-report
           path: junit-html-test-report
