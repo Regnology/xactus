@@ -105,13 +105,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test
-      - name: Create JUnit HTML test report artifact
-        # don't run this step only if workflow was cancelled
-        if: ${{ success() || failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-html-test-report
-          path: build/reports/tests/test
       - name: Create JUnit XML test report artifact
         # don't run this step only if workflow was cancelled
         if: ${{ success() || failure() }}
@@ -138,39 +131,6 @@ jobs:
         with:
           junit_files: junit-xml-test-report/**/*.xml
           check_name: Test results overview
-
-  publish_html_test_report:
-    name: Publish HTML test report
-    needs: [ test, configuration ]
-    # don't run this job only if workflow was cancelled, or we're running on a fork PR
-    if: ${{ !needs.configuration.outputs.is_fork_pr && (success() || failure()) }}
-    runs-on: ubuntu-latest
-    outputs:
-      test_report_url: ${{ steps.generate_report_url.outputs.test_report_url }}
-    steps:
-      - name: Download XML test results artifact
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: junit-html-test-report
-          path: junit-html-test-report
-      - name: Generate report path
-        id: generate_report_path
-        run: echo 'test_report_path=test-results/${{ github.run_id }}/${{ github.run_attempt }}' >> $GITHUB_OUTPUT
-      - name: Publish report to Github Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ always() }}
-        with:
-          external_repository: fingo/results-xactus
-          deploy_key: ${{ secrets.XACTUS_RESULTS_TOKEN }}
-          publish_dir: ./junit-html-test-report
-          destination_dir: ${{ steps.generate_report_path.outputs.test_report_path }}
-          keep_files: true
-      - name: Generate report URL
-        id: generate_report_url
-        run: echo 'test_report_url=https://fingo.github.io/results-xactus/${{ steps.generate_report_path.outputs.test_report_path }}' >> $GITHUB_OUTPUT
-      - name: Place report URL in the summary
-        run: |
-          echo 'Link to the HTML test report: <${{ steps.generate_report_url.outputs.test_report_url }}>' >> $GITHUB_STEP_SUMMARY
 
   publish:
     name: Publish artifacts
@@ -213,7 +173,7 @@ jobs:
           echo "Published artifact URL: ${{ steps.publication_configuration.outputs.artifact_url }}" >> $GITHUB_STEP_SUMMARY
 
   slack:
-    needs: [ test, publish, publish_html_test_report, configuration ]
+    needs: [ test, publish, configuration ]
     # don't run this job only if we're running on a fork PR
     if: ${{ !needs.configuration.outputs.is_fork_pr && always() }}
     name: Send out Slack notification
@@ -228,10 +188,7 @@ jobs:
           SLACK_USERNAME: Github
           SLACK_TITLE: Reports
           SLACK_MESSAGE: |
-            *HTML test report*
-            ${{ needs.publish_html_test_report.outputs.test_report_url }}
-            
             *Artifact URL*
             ${{ needs.publish.outputs.artifact_url }}
             
-            _Usually artifacts and test results become available with a delay (usually up to a few minutes, but sometimes it may take longer)._
+            _Usually artifacts become available with a delay (usually up to a few minutes, but sometimes it may take longer)._
