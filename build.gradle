@@ -19,6 +19,10 @@ repositories {
 extensions.configure(NexusPublishExtension) { NexusPublishExtension extension ->
     extension.repositories { NexusRepositoryContainer container ->
         container.sonatype { NexusRepository sonatypeRepository ->
+            // OSSRH (oss.sonatype.org) shut down; publish via Central Portal staging API.
+            // https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+            sonatypeRepository.nexusUrl.set uri('https://ossrh-staging-api.central.sonatype.com/service/local/')
+            sonatypeRepository.snapshotRepositoryUrl.set uri('https://central.sonatype.com/repository/maven-snapshots/')
             sonatypeRepository.username.set project.findProperty(Constants.OSSRH_USER_NAME_PROPERTY_KEY_PREFIX).toString()
             sonatypeRepository.password.set project.findProperty(Constants.OSSRH_PASSWORD_PROPERTY_KEY_PREFIX).toString()
         }

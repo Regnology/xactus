@@ -34,7 +34,7 @@ Xactus is using [Axion Release Plugin](https://github.com/allegro/axion-release-
 
 ## Automatic publications - GitHub Actions
 
-Xactus has an automated release process created with [GitHub Actions](https://github.com/features/actions). [Validate and publish workflow](https://github.com/fingo/xactus/actions/workflows/ci.yml) is responsible for validating the build and releasing artifacts to Sonatype. Snapshot versions are published to the [Xactus Snapshot repo](https://oss.sonatype.org/content/repositories/snapshots/info/fingo/xactus/xactus/) and release versions go to [Maven Central repository](https://repo.maven.apache.org/maven2/info/fingo/xactus/xactus/).  
+Xactus has an automated release process created with [GitHub Actions](https://github.com/features/actions). [Validate and publish workflow](https://github.com/Regnology/xactus/actions/workflows/ci.yml) is responsible for validating the build and releasing artifacts via [Sonatype Central Portal](https://central.sonatype.com/). Snapshot versions are published to the [Maven Central snapshots repository](https://central.sonatype.com/repository/maven-snapshots/info/fingo/xactus/xactus/) and release versions go to [Maven Central repository](https://repo.maven.apache.org/maven2/info/fingo/xactus/xactus/).  
 
 For every commit pushed to master a new snapshot will be published. The version for the snapshot is determined using Axion's `currentVersion` Gradle task:
 
@@ -57,7 +57,7 @@ There are a few publishing targets:
 
       ./gradlew -Pversion=<publish version> publishToMavenLocal
   
-* Maven Central/Sonatype (requires OSSRH credentials to be set - [see below](#manual-publication---publishing-to-maven-central)):
+* Maven Central (requires [Central Portal](https://central.sonatype.com/) user token - [see below](#manual-publication---publishing-to-maven-central)):
 
       ./gradlew -Pversion=<publish version> publishToSonatype
 
@@ -84,13 +84,13 @@ You can also automatically close and release the staging repository after the re
 
 This will publish Xactus to Maven Central automatically, without the need to use Sonatype Nexus UI.
 
-To publish an artifact to Maven Central [OSSRH](https://central.sonatype.org/publish/publish-guide/) credentials need to be supplied in addition to the [PGP configuration](#manual-publication---pgp-configuration):
-* `ossrhUserName` - OSSRH username to be used to deploy the artifact.
-* `ossrhPassword` - password for the OSSRH user.
+To publish an artifact to Maven Central, generate a [user token](https://central.sonatype.org/publish/generate-portal-token/) at [central.sonatype.com](https://central.sonatype.com/) (not the retired OSSRH login). Supply it in addition to the [PGP configuration](#manual-publication---pgp-configuration):
+* `ossrhUserName` - Central Portal token username (`ORG_GRADLE_PROJECT_ossrhUserName` in CI, secret `OSSRH_USERNAME`).
+* `ossrhPassword` - Central Portal token password (`ORG_GRADLE_PROJECT_ossrhPassword` in CI, secret `OSSRH_TOKEN`).
 
 # Links
 
 * [Xactus releases in Maven Central Repository](https://repo.maven.apache.org/maven2/info/fingo/xactus/xactus/)
-* [Xactus snapshots in OSS Sonatype Snapshot Repository](https://oss.sonatype.org/content/repositories/snapshots/info/fingo/xactus/xactus/).
+* [Xactus snapshots](https://central.sonatype.com/repository/maven-snapshots/info/fingo/xactus/xactus/)
 * [Xactus in Maven Central Repository Search](https://search.maven.org/artifact/info.fingo.xactus/xactus)
 * [Xactus on MVNRepository](https://mvnrepository.com/artifact/info.fingo.xactus/xactus)
