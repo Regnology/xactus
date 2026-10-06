@@ -855,12 +855,13 @@ Cloneable {
 		XSDuration val = (XSDuration) at;
 		try {
 			XSDateTime res = (XSDateTime) clone();
+			Calendar source = calendar();
 			XMLGregorianCalendar xmlCal = _datatypeFactory
-					.newXMLGregorianCalendar((GregorianCalendar) calendar());
+					.newXMLGregorianCalendar((GregorianCalendar) source);
 			Duration dtduration = _datatypeFactory
 					.newDuration(val.getStringValue());
 			xmlCal.add(dtduration.negate());
-			res = new XSDateTime(xmlCal.toGregorianCalendar(), res.tz());
+			res = new XSDateTime(toGregorianCalendar(source, xmlCal), res.tz());
 
 			return res;
 		} catch (CloneNotSupportedException ex) {
@@ -915,14 +916,14 @@ Cloneable {
 				XSDuration val = (XSDuration) at;
 
 				XSDateTime res = (XSDateTime) clone();
+				Calendar source = calendar();
 
 				XMLGregorianCalendar xmlCal = _datatypeFactory
-						.newXMLGregorianCalendar(
-								(GregorianCalendar) calendar());
+						.newXMLGregorianCalendar((GregorianCalendar) source);
 				Duration dtduration = _datatypeFactory
 						.newDuration(val.getStringValue());
 				xmlCal.add(dtduration);
-				res = new XSDateTime(xmlCal.toGregorianCalendar(), res.tz());
+				res = new XSDateTime(toGregorianCalendar(source, xmlCal), res.tz());
 				return res;
 			} else {
 				DynamicError.throw_type_error();

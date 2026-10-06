@@ -15,6 +15,7 @@
 package info.fingo.xactus.processor.internal.function;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
@@ -28,6 +29,7 @@ import info.fingo.xactus.api.ResultBuffer;
 import info.fingo.xactus.api.ResultSequence;
 import info.fingo.xactus.processor.DynamicError;
 import info.fingo.xactus.processor.internal.SeqType;
+import info.fingo.xactus.processor.internal.types.CalendarType;
 import info.fingo.xactus.processor.internal.types.QName;
 import info.fingo.xactus.processor.internal.types.XSDayTimeDuration;
 import info.fingo.xactus.processor.internal.types.XSTime;
@@ -106,9 +108,11 @@ public class FnAdjustTimeToTimeZone extends Function {
 
 
 		XMLGregorianCalendar xmlCalendar = null;
+		Calendar normalized = null;
 
 		if (time.tz() != null) {
-			xmlCalendar = _datatypeFactory.newXMLGregorianCalendar((GregorianCalendar)time.normalizeCalendar(time.calendar(), time.tz()));
+			normalized = time.normalizeCalendar(time.calendar(), time.tz());
+			xmlCalendar = _datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) normalized);
 		} else {
 			xmlCalendar = _datatypeFactory.newXMLGregorianCalendarTime(time.hour(), time.minute(), (int)time.second(), 0);
 		}
@@ -125,7 +129,7 @@ public class FnAdjustTimeToTimeZone extends Function {
 		Duration duration = _datatypeFactory.newDuration(timezone.getStringValue());
 		xmlCalendar.add(duration);
 
-		return new XSTime(xmlCalendar.toGregorianCalendar(), timezone);
+		return new XSTime(CalendarType.toGregorianCalendar(normalized, xmlCalendar), timezone);
 	}
 
 	/**
