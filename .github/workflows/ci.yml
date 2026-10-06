@@ -163,7 +163,7 @@ jobs:
             echo 'EOF' >> $GITHUB_ENV
           fi
           echo 'arguments=${{ needs.configuration.outputs.is_release && 'publishToSonatype closeAndReleaseSonatypeStagingRepository' || 'publishToSonatype' }}' >> $GITHUB_OUTPUT
-          echo 'artifact_url=${{ format(needs.configuration.outputs.is_release && 'https://repo.maven.apache.org/maven2/info/fingo/xactus/xactus/{0}/' || 'https://oss.sonatype.org/content/repositories/snapshots/info/fingo/xactus/xactus/{0}/', needs.configuration.outputs.publish_version) }}' >> $GITHUB_OUTPUT
+          echo 'artifact_url=${{ format(needs.configuration.outputs.is_release && 'https://repo.maven.apache.org/maven2/info/fingo/xactus/xactus/{0}/' || 'https://central.sonatype.com/repository/maven-snapshots/info/fingo/xactus/xactus/{0}/', needs.configuration.outputs.publish_version) }}' >> $GITHUB_OUTPUT
       - name: Publish
         uses: gradle/gradle-build-action@v2
         with:
