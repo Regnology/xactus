@@ -134,6 +134,14 @@ tasks.withType(Test).configureEach {
 
     it.useJUnitPlatform()
 
+    // allows running the tests on newer JDKs, while still compiling for Java 8
+    def testJavaVersion = project.findProperty('testJavaVersion')
+    if (testJavaVersion) {
+        it.javaLauncher.set(javaToolchains.launcherFor {
+            it.languageVersion.set(JavaLanguageVersion.of(testJavaVersion.toString()))
+        })
+    }
+
     it.systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
     it.systemProperty 'junit.jupiter.execution.parallel.mode.default', 'same_thread'
     it.systemProperty 'junit.jupiter.execution.parallel.mode.classes.default', 'concurrent'
