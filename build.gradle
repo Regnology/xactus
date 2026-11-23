@@ -211,7 +211,6 @@ tasks.withType(JavaCompile).configureEach {
 
 dependencies {
     implementation libs.xerces
-    implementation libs.icu4j
     jcup libs.jcup
     jflex libs.jflex
 

@@ -15,6 +15,7 @@
 
 package info.fingo.xactus.processor.internal.function;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,8 +29,6 @@ import info.fingo.xactus.processor.DynamicError;
 import info.fingo.xactus.processor.internal.SeqType;
 import info.fingo.xactus.processor.internal.types.QName;
 import info.fingo.xactus.processor.internal.types.XSString;
-
-import com.ibm.icu.text.Normalizer;
 
 /**
  * <p>
@@ -65,74 +64,28 @@ public class FnNormalizeUnicode extends Function {
 	};
 
 	/**
-	 * W3C normalizer implemented via IBM's ICU
+	 * W3C normalizer implemented via java.text.Normalizer
 	 */
-	static class ICUNormalizer implements W3CNormalizer {
+	static class JDKNormalizer implements W3CNormalizer {
 
 		private Map modeMap = new HashMap();
 		{
 			// Can't handle "FULLY-NORMALIZED" yet
 
-			modeMap.put("NFC", Normalizer.NFC);
-			modeMap.put("NFD", Normalizer.NFD);
-			modeMap.put("NFKC", Normalizer.NFKC);
-			modeMap.put("NFKD", Normalizer.NFKD);
+			modeMap.put("NFC", Normalizer.Form.NFC);
+			modeMap.put("NFD", Normalizer.Form.NFD);
+			modeMap.put("NFKC", Normalizer.Form.NFKC);
+			modeMap.put("NFKD", Normalizer.Form.NFKD);
 		}
 
 		public String normalize(String argument, String normalizationForm)
 				throws DynamicError {
-			Normalizer.Mode mode = (Normalizer.Mode)modeMap.get(normalizationForm);
+			Normalizer.Form mode = (Normalizer.Form)modeMap.get(normalizationForm);
 			if (mode != null) {
 				return Normalizer.normalize(argument, mode);
 			} else {
 				throw DynamicError.unsupported_normalization_form(normalizationForm);
 			}
-		}
-	}
-
-	/*
-	static class JDK6Normalizer implements W3CNormalizer {
-		private Method normalizeMethod;
-		private Map formMap = new HashMap();
-
-		public JDK6Normalizer(Class normalizerCls, Class formCls) throws SecurityException, NoSuchMethodException {
-			this.normalizeMethod = normalizerCls.getMethod("normalize", CharSequence.class, formCls);
-			Enum[] formConstants = formCls.getEnumConstants();
-			for (Enum form : formConstants) {
-				formMap.put(form.name(), form);
-			}
-			// Can't handle "FULLY-NORMALIZED" yet
-		}
-
-		public String normalize(String argument, String normalizationForm)
-				throws DynamicError {
-
-			//if (normalizationForm.equals("FULLY-NORMALIZED")) {
-			//   We can't handle this one yet
-			// }
-			Enum form = formMap.get(normalizationForm);
-			if (form != null) {
-				try {
-					return (String)normalizeMethod.invoke(null, argument, form);
-				} catch (RuntimeException e) {
-					throw DynamicError.runtime_error("java.text.Normalizer.normalize(..., \"" + normalizationForm + "\")", e);
-				} catch (IllegalAccessException e) {
-					throw DynamicError.runtime_error("java.text.Normalizer.normalize(..., \"" + normalizationForm + "\")", e);
-				} catch (InvocationTargetException e) {
-					throw DynamicError.runtime_error("java.text.Normalizer.normalize(..., \"" + normalizationForm + "\")", e);
-				}
-			} else {
-				throw DynamicError.unsupported_normalization_form(normalizationForm);
-			}
-		}
-	}
-	*/
-
-	static class FailingNormalizer implements W3CNormalizer {
-
-		public String normalize(String argument, String normalizationForm)
-				throws DynamicError {
-			throw DynamicError.unsupported_normalization_form("Can't normalize to form " + normalizationForm + ": No ICU Library or Java 6 found. 'normalize-unicode' requires either 'com.ibm.icu.text.Normalizer' or 'java.text.Normalizer' on the classpath");
 		}
 	}
 
@@ -188,46 +141,9 @@ public class FnNormalizeUnicode extends Function {
 
 	private static W3CNormalizer getNormalizer() {
 		if (normalizer == null) {
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-			normalizer = createICUNormalizer(classLoader);
-			/*
-			if (normalizer == null) {
-				normalizer = createJDKNormalizer(classLoader);
-			}
-			*/
-			if (normalizer == null) {
-				normalizer = new FailingNormalizer();
-			}
+			normalizer = new JDKNormalizer();
 		}
 		return normalizer;
-	}
-
-	/*
-	private static W3CNormalizer createJDKNormalizer(ClassLoader classLoader) {
-		// If that fails, we'll check for the Java 6 Normalizer class
-		try {
-			Class normalizerClass = classLoader.loadClass("java.text.Normalizer");
-			Class formClass = classLoader.loadClass("java.text.Normalizer$Form");
-
-			return new JDK6Normalizer(normalizerClass, formClass);
-		} catch (ClassNotFoundException e) {
-		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
-		}
-		return null;
-	}
-	*/
-
-	private static W3CNormalizer createICUNormalizer(ClassLoader classLoader) {
-		// First attempt is to try the IBM ICU library
-		try {
-			if (classLoader.loadClass("com.ibm.icu.text.Normalizer") != null) {
-				return new ICUNormalizer();
-			}
-		} catch (ClassNotFoundException e) {
-		}
-		return null;
 	}
 
 	/**
