@@ -14,7 +14,6 @@
 
 package info.fingo.xactus.processor.internal.utils;
 
-import com.ibm.icu.lang.UCharacter;
 
 public final class StringCodePointIterator implements CodePointIterator
 {
@@ -34,7 +33,7 @@ public final class StringCodePointIterator implements CodePointIterator
 
         this.text = text;
         this.end = text.length();
-        if (end > 0 && UCharacter.isHighSurrogate(text.charAt(end-1)))
+        if (end > 0 && Character.isHighSurrogate(text.charAt(end-1)))
             throw new IllegalArgumentException("Invalid UTF-16 sequence ending with a high surrogate");
 
         this.pos = 0;
@@ -77,7 +76,7 @@ public final class StringCodePointIterator implements CodePointIterator
     public int last()
     {
         pos = end;
-        cpPos = UCharacter.codePointCount(text, 0, pos);
+        cpPos = Character.codePointCount(text, 0, pos);
         return previous();
      }
 
@@ -89,8 +88,8 @@ public final class StringCodePointIterator implements CodePointIterator
     {
         if (pos < end) {
             char ch1 =  text.charAt(pos);
-            if (UCharacter.isHighSurrogate(ch1))
-               return UCharacter.toCodePoint(ch1, text.charAt(pos+1));
+            if (Character.isHighSurrogate(ch1))
+               return Character.toCodePoint(ch1, text.charAt(pos+1));
 
             return ch1;
         }
@@ -107,7 +106,7 @@ public final class StringCodePointIterator implements CodePointIterator
     {
         if (pos < end - 1) {
             pos++;
-            if (UCharacter.isLowSurrogate(text.charAt(pos))) pos++;
+            if (Character.isLowSurrogate(text.charAt(pos))) pos++;
             cpPos++;
             return current();
         }
@@ -125,7 +124,7 @@ public final class StringCodePointIterator implements CodePointIterator
     {
         if (pos > 0) {
             pos--;
-            if (UCharacter.isLowSurrogate(text.charAt(pos))) pos--;
+            if (Character.isLowSurrogate(text.charAt(pos))) pos--;
             cpPos--;
             return current();
         }

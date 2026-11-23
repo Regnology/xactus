@@ -32,7 +32,6 @@ import info.fingo.xactus.processor.internal.types.QName;
 import info.fingo.xactus.processor.internal.types.XSInteger;
 import info.fingo.xactus.processor.internal.types.XSString;
 
-import com.ibm.icu.text.UTF16;
 
 /**
  * <p>
@@ -102,7 +101,7 @@ public class FnStringLength extends Function {
 		if (! arg1.empty()) {
 			str = ((XSString) arg1.first()).value();
 		}
-		return new XSInteger(BigInteger.valueOf(UTF16.countCodePoint(str)));
+		return new XSInteger(BigInteger.valueOf(str.codePointCount(0, str.length())));
 	}
 
 	/**

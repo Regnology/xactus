@@ -31,7 +31,6 @@ import info.fingo.xactus.processor.internal.types.XSString;
 import info.fingo.xactus.processor.internal.utils.CodePointIterator;
 import info.fingo.xactus.processor.internal.utils.StringCodePointIterator;
 
-import com.ibm.icu.lang.UCharacter;
 
 /**
  * <p>
@@ -136,7 +135,7 @@ public class FnSubstring extends Function {
 		CodePointIterator strIter = new StringCodePointIterator(str);
 		for (long p = 1; strIter.current() != CodePointIterator.DONE; ++p, strIter.next()) {
 			if (istart <= p && p - istart < ilength)
-			   sb.append(UCharacter.toChars(strIter.current()));
+			   sb.append(Character.toChars(strIter.current()));
 		}
 		return new XSString(sb.toString());
 	}
